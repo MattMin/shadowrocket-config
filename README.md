@@ -22,6 +22,7 @@ https://raw.githubusercontent.com/MattMin/shadowrocket-config/master/shadowrocke
 - `Game.list`：Sony、Nintendo、Epic、SteamCN、Steam 和 Game。
 - `Max.list`：HBO 及配置中的 MAX 域名规则。
 - `KRAK.list`：KRAK 相关域名关键词。
+- `China.list`：China、网易云音乐、百度、豆瓣、微信、新浪、知乎、小红书和抖音。
 
 其余规则保持上游内容，并通过本仓库的 Raw 链接引用。
 
@@ -34,10 +35,6 @@ GitHub Actions 每天北京时间 14:17 检查上游规则，仅在内容变化�
 ```bash
 bash scripts/sync-rules.sh
 ```
-
-## 安全
-
-公开配置不包含 HTTPS 解密证书、私钥或密码。原始本地配置 `lazy_group.conf` 已加入 `.gitignore`。
 
 ## 规则来源
 

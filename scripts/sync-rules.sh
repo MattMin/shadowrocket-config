@@ -38,18 +38,24 @@ mirror Microsoft.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_sc
 mirror Google.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Google/Google.list
 mirror Apple.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/Apple/Apple.list
 mirror BiliBili.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/BiliBili/BiliBili.list
-mirror NetEaseMusic.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/NetEaseMusic/NetEaseMusic.list
-mirror Baidu.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Baidu/Baidu.list
-mirror DouBan.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/DouBan/DouBan.list
-mirror WeChat.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/WeChat/WeChat.list
-mirror Sina.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Sina/Sina.list
-mirror Zhihu.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Zhihu/Zhihu.list
-mirror XiaoHongShu.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/XiaoHongShu/XiaoHongShu.list
-mirror DouYin.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/DouYin/DouYin.list
 mirror TikTok.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/TikTok/TikTok.list
 mirror Global.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/Global/Global.list
-mirror China.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/China/China.list
 mirror Lan.list https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Lan/Lan.list
+
+china_sources=()
+download "$download_dir/China.list" https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/China/China.list
+china_sources+=("$download_dir/China.list")
+for name in NetEaseMusic Baidu DouBan Sina Zhihu XiaoHongShu DouYin; do
+  source_file="$download_dir/$name.list"
+  download "$source_file" "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/$name/$name.list"
+  china_sources+=("$source_file")
+done
+download "$download_dir/WeChat.list" https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/QuantumultX/WeChat/WeChat.list
+china_sources+=("$download_dir/WeChat.list")
+{
+  echo '# 合并自 China、NetEaseMusic、Baidu、DouBan、Sina、Zhihu、XiaoHongShu、DouYin、WeChat 规则集'
+  awk 'NF && $0 !~ /^#/ && !seen[$0]++' "${china_sources[@]}"
+} > "$output_dir/China.list"
 
 game_sources=()
 for name in Sony Nintendo Epic SteamCN Steam Game; do
@@ -99,5 +105,8 @@ done < "$referenced_rules"
 }
 
 mkdir -p "$repo_dir/rules"
+for name in NetEaseMusic Baidu DouBan WeChat Sina Zhihu XiaoHongShu DouYin; do
+  rm -f "$repo_dir/rules/$name.list"
+done
 cp "$output_dir"/*.list "$repo_dir/rules/"
 echo "规则同步完成：$(find "$output_dir" -name '*.list' | wc -l | tr -d ' ') 个文件"
