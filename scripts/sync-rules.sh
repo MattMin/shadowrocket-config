@@ -16,6 +16,14 @@ download() {
     echo "无有效规则：$url" >&2
     exit 1
   }
+  # Quantumult X 的第三列是策略；由配置中的 RULE-SET 统一指定。
+  if [[ $url == */QuantumultX/* ]]; then
+    awk 'BEGIN { FS=OFS="," }
+      /^#/ || !NF { print; next }
+      NF != 3 { exit 1 }
+      { sub(/^HOST/, "DOMAIN", $1); print $1, $2 }' "$target" > "$target.converted"
+    mv "$target.converted" "$target"
+  fi
 }
 
 mirror() {
