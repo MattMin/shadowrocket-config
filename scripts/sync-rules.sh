@@ -10,7 +10,7 @@ mkdir -p "$download_dir" "$output_dir"
 
 download() {
   local target=$1 url=$2
-  curl --fail --location --retry 3 --silent --show-error "$url" -o "$target"
+  curl --fail --location --retry 3 --connect-timeout 15 --max-time 120 --silent --show-error "$url" -o "$target"
   [[ -s $target ]] || { echo "空规则文件：$url" >&2; exit 1; }
   grep -Eq '^(DOMAIN|HOST|IP|USER-AGENT|URL-REGEX)' "$target" || {
     echo "无有效规则：$url" >&2
@@ -21,7 +21,9 @@ download() {
     awk 'BEGIN { FS=OFS="," }
       /^#/ || !NF { print; next }
       NF != 3 { exit 1 }
-      { sub(/^HOST/, "DOMAIN", $1); print $1, $2 }' "$target" > "$target.converted"
+      { sub(/^HOST/, "DOMAIN", $1)
+        if ($1 ~ /^(IP-CIDR|IP6-CIDR|IP-CIDR6)$/) print $1, $2, "no-resolve"
+        else print $1, $2 }' "$target" > "$target.converted"
     mv "$target.converted" "$target"
   fi
 }
